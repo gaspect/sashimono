@@ -1,0 +1,21 @@
+[project]
+name = "sashimono"
+version = "0.1.0"
+description = "A dependency injection container with plugins approach"
+authors = [
+    { name = "Jesús Enrique Fuentes González", email = "jesusefg12@gmail.com" },
+]
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = ["setuptools>=75.8.2"]
+license = { file = "LICENSE" }
+classifiers = [
+    "License :: OSI Approved :: MIT License"
+]
+
+[project.optional-dependencies]
+dev = ["pytest-cov>=6.0.0", "pytest>=8.3.4"]
+
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
