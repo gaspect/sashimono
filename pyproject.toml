@@ -1,6 +1,6 @@
 [project]
 name = "sashimono"
-version = "0.1.0"
+version = "0.1.1"
 description = "A dependency injection container with plugins approach"
 authors = [
     { name = "Jesús Enrique Fuentes González", email = "jesusefg12@gmail.com" },
