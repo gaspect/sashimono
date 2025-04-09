@@ -7,7 +7,6 @@ authors = [
 ]
 readme = "README.md"
 requires-python = ">=3.12"
-dependencies = ["setuptools>=75.8.2"]
 license = { file = "LICENSE" }
 classifiers = [
     "License :: OSI Approved :: MIT License"
