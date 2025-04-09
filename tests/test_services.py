@@ -1,5 +1,5 @@
 def test_injection():
-    from sashimono.di import Container
+    from sashimono import Container
 
     class A:
         pass
@@ -15,7 +15,7 @@ def test_injection():
 
 
 def test_factory():
-    from sashimono.di import Container
+    from sashimono import Container
 
     c = Container()
     c["foo"] = Container.factory(object)
@@ -24,7 +24,7 @@ def test_factory():
 
 
 def test_singleton():
-    from sashimono.di import Container
+    from sashimono import Container
 
     c = Container()
     c["foo"] = Container.singleton(object)
@@ -33,7 +33,7 @@ def test_singleton():
 
 
 def test_injection_by_inheritance():
-    from sashimono.di import Container
+    from sashimono import Container
 
     class A: ...
 
@@ -51,7 +51,7 @@ def test_injection_by_inheritance():
 
 
 def test_injection_by_lambda():
-    from sashimono.di import Container
+    from sashimono import Container
 
     c = Container()
     c["number"] = Container.singleton(lambda _: 4)
@@ -59,7 +59,7 @@ def test_injection_by_lambda():
 
 
 def test_injection_by_annotation():
-    from sashimono.di import Container
+    from sashimono import Container
 
     class A:
         pass

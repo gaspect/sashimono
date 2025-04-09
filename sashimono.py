@@ -1,23 +1,23 @@
 import typing
 import inspect
-import pkg_resources
 from functools import cache
 from typing import Callable, Any
+
 
 class _Binder:
 
     def __init__(self, klass: typing.Type):
         self._klass = klass
 
-    def __call__(self, services: "Container"):
+    def __call__(self, container: "Container"):
         try:
-            # Obtener el método __init__ de la clase
+            # Get the __init__ method of the class
             init_method = next(
                 member
                 for name, member in inspect.getmembers(self._klass, inspect.isfunction)
                 if name == "__init__"
             )
-            # Obtener las anotaciones y argumentos del método __init__
+            # Get the annotations and arguments of the __init__ method
             annotations = init_method.__annotations__
             args = [
                 arg
@@ -25,11 +25,11 @@ class _Binder:
                 if arg != "self"
             ]
 
-            # Crear un diccionario con los servicios
-            kwargs = {k: services[v] for k, v in annotations.items()}
-            kwargs.update({k: services[k] for k in args if k not in kwargs})
+            # Create a dictionary with the values of the container using the annotations and arguments
+            kwargs = {k: container[v] for k, v in annotations.items()}
+            kwargs.update({k: container[k] for k in args if k not in kwargs})
 
-            # Retornar la clase con los servicios inyectados
+            # Return the class instance with the injected values
             return self._klass(**kwargs)
         except StopIteration:
             return self._klass()
@@ -54,34 +54,28 @@ class _Singleton(_Factory):
 
 class Container:
 
-    def __init__(self, container: dict = None):
-        from sashimono.abc import Plugin  # avoid circular import     
+    def __init__(self, default: "Container" = None):
 
-        self._container = container or {}
-        for entry_point in pkg_resources.iter_entry_points("sashimono.plugins"):
-            klass = entry_point.load()
-            if issubclass(klass, Plugin):
-                klass().setup(self)
+        self._container = default._container.copy() if default else {}
 
     def _find_key(self, key: type) -> type | None:
         if key in self._container:
             return key
-
+        klass = inspect.isclass(key)
         for k in self._container:
-            if inspect.isclass(key) and inspect.isclass(k) and issubclass(k, key):
+            if klass and inspect.isclass(k) and issubclass(k, key):
                 return k
 
         return None
 
     def __getitem__[T](self, key: str | type[T]) -> T | typing.Any:
         key = self._find_key(key) or key
-        if isinstance(self._container[key], _Factory):
-            return self._container[key](self)
-        return self._container[key]
+        return self._container[key](self)
 
-    def __setitem__[
-        T
-    ](self, key: str | type[T], value: T | typing.Callable[["Container"], T]):
+    def __setitem__[T](
+        self, key: str | type[T], value: _Factory
+    ):
+        assert isinstance(value, _Factory), "Use Container.singleton or Container.factory"
         self._container[key] = value
 
     @staticmethod
@@ -100,9 +94,6 @@ class Container:
     @staticmethod
     def singleton(item: type | Callable | Any):
         return _Singleton(Container._create_obj(item))
-
-    def __iter__(self):
-        return self._container.__iter__()
 
     def __xor__(self, other: "Container"):
         container = self._container | other._container
